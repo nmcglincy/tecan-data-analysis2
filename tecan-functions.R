@@ -8,8 +8,8 @@ generate.sample.info.template = function(){
   plate.template = data.frame(plate.letters = rep(LETTERS[1:8], each = 12),
                               plate.numbers = rep(1:12, 8),
                               well = paste(rep(LETTERS[1:8], each = 12), 
-							  			   rep(1:12, 8), 
-										   sep = ""))
+					rep(1:12, 8), 
+					sep = ""))
   write.csv(plate.template, 
 	  file = "plate-template.csv", 
 	  row.names = FALSE)
@@ -19,7 +19,7 @@ generate.sample.info.template = function(){
 # Initial manipulation and examining temperature trend
 
 init.proc = function(tecanOutput, 
-					 sorting.var1){
+		sorting.var1){
 	suppressMessages(require(readr))
 	suppressMessages(require(plyr))
 	suppressMessages(require(dplyr))
@@ -117,18 +117,18 @@ filt.and.norm  = function(dat,
             row.names = FALSE)
 
   good.norm.dat = ldply(Map(function(x, y){mutate(x, norm.val = x[,var.to.norm] - y)},
-  							dlply(.data = dat %>% 
-										    filter(well %in% setdiff(dat$well, bad.wells)) %>%
-										    filter(strain != "YEPD"), 
-								  .variables = c(sorting.var1, sorting.var2)),
-							(dat %>%
-				                 filter(well %in% setdiff(dat$well, bad.wells)) %>%
-				                 filter(strain == "YEPD") %>%
-				                 group_by_(sorting.var1, sorting.var2) %>%
-				                 summarise(med = median(od600)) %>%
-				                 select(med))$med),
-						.id = NULL)
-						
+				dlply(.data = dat %>% 
+						filter(well %in% setdiff(dat$well, bad.wells)) %>%
+						filter(strain != "YEPD"), 
+					.variables = c(sorting.var1, sorting.var2)),
+				(dat %>%
+					filter(well %in% setdiff(dat$well, bad.wells)) %>%
+					filter(strain == "YEPD") %>%
+					group_by_(sorting.var1, sorting.var2) %>%
+					summarise(med = median(od600)) %>%
+					select(med))$med),
+			.id = NULL)
+
   write.csv(x = good.norm.dat,
             file = "filt-norm-tecan-data.csv",
             row.names = FALSE)
@@ -138,19 +138,19 @@ filt.and.norm  = function(dat,
 # Function to fit spline on pooled replicates per condition
 
 spline.fit = function(dat,
-					  sorting.var1,
-					  sorting.var2){
-    suppressMessages(require(plyr))
+		sorting.var1,
+		sorting.var2){
+    	suppressMessages(require(plyr))
 	gcl2 = function(foo) {
-				   suppressMessages(require(grofit))
-				   spl.fit = smooth.spline(foo$Time.hrs, foo$norm.val, keep.data = FALSE)
-				   data.frame(Time.hrs = spl.fit$x, abs.fit = spl.fit$y)
-				 }
+		suppressMessages(require(grofit))
+		spl.fit = smooth.spline(foo$Time.hrs, foo$norm.val, keep.data = FALSE)
+		data.frame(Time.hrs = spl.fit$x, abs.fit = spl.fit$y)
+	}
 	lgdf = dlply(.data = dat,
-				 .variables = c(sorting.var1, sorting.var2))
+			.variables = c(sorting.var1, sorting.var2))
 	df.fin = merge(ldply(lgdf),
-	      		   ldply(lapply(lgdf, gcl2)),
-	      		   by = c(".id", "Time.hrs"))
+			ldply(lapply(lgdf, gcl2)),
+			by = c(".id", "Time.hrs"))
 	return(df.fin)
 }
 
