@@ -1,5 +1,5 @@
 # data.file is character string of the tecan output .csv formatted for number in excel
-# coding is easier if you record the whole plate - should probably do something about this
+# record whole plate, but annotate empty wells as "NA" in sample-info.csv
 # sample-info.csv must have column named "strain", and be produced by the function.
 
 # Generates a template for sample.info
