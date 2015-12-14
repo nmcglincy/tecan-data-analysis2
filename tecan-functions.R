@@ -235,7 +235,7 @@ grofit.analysis = function(dat,
             row.names = FALSE)
   
   params.summ = params %>%
-    group_by(strain, chx_ugml) %>%
+    group_by_(sorting.var1, sorting.var2) %>%
     summarise(N = length(mu),
               m_mu = mean(mu),
               se_mu = sd(mu)/sqrt(N),
